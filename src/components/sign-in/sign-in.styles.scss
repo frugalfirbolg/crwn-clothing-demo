@@ -10,5 +10,10 @@
  .buttons {
      display: flex;
      justify-content: space-between;
+
+     .custom-button {
+         margin: 10px 10px;
+         min-width: 200px;
+     }
  }
 }
