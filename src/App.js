@@ -15,6 +15,7 @@ import Header from './components/header/header.component';
 import SignInAndSignUpPage from './pages/sign-in-and-up/sign-in-and-up.component';
 
 import './App.css';
+import { snapshotEqual } from 'firebase/firestore';
 
 class App extends React.Component {
   constructor() {
@@ -28,9 +29,21 @@ class App extends React.Component {
   unsubscribeFromAuth = null;
 
   componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async user => {
-      createUserProfileDocument(user);
-      this.setState({ currentUser: user });
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        await createUserProfileDocument(userAuth, {}, 
+            snapShot => {
+              this.setState({
+                currentUser: {
+                  id: snapShot.id,
+                  ...snapShot.data()
+                }
+              })
+            }
+          );
+      } else {
+        this.setState({ currentUser: null });
+      }
     });
   }
 

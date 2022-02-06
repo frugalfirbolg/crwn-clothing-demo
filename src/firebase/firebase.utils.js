@@ -1,14 +1,18 @@
 import { initializeApp }  from 'firebase/app';
-import { getFirestore, doc, getDoc, setDoc, collection } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot } from 'firebase/firestore';
 
-import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 import FIREBASE_CONFIG from './firebase.config';
 
-export const createUserProfileDocument = async (userAuth, additionalData) => {
+export const createUserProfileDocument = async (userAuth, additionalData, snapshotListener) => {
     if (!userAuth) return;
 
     const usersRef =  collection(firestore, 'users');
     const userRef = doc(usersRef, userAuth.uid);
+
+    if (snapshotListener) {
+        onSnapshot(userRef, snapshotListener);
+    }
 
     const snapShot = await getDoc(userRef);
 
@@ -34,6 +38,8 @@ const firebaseApp = initializeApp(FIREBASE_CONFIG);
 export const firestore = getFirestore(firebaseApp);
 
 export const auth = getAuth();
+
+export const createUserWithEmailAndPasswordProxy = (email, password) => createUserWithEmailAndPassword(auth, email, password);
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
